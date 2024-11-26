@@ -10,3 +10,4 @@ def check_file_size(file_path):
 # .pth 파일 경로 지정
 file_path = "opt-350m_3_01.pth"
 check_file_size(file_path)
+#수정수정
