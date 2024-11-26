@@ -11,3 +11,4 @@ def check_file_size(file_path):
 file_path = "opt-350m_3_01.pth"
 check_file_size(file_path)
 #수정수정
+#깃 ssh 제한 
