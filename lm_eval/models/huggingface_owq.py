@@ -276,7 +276,7 @@ class HuggingFaceAutoLM(BaseLM):
 
                 qlayers = find_layers(self.model, [QuantLinear])
                 for name in qlayers:
-                    qlayers[name].set_kernel(faster=True)
+                    qlayers[name].set_kernel(faster=False)
             else:
                 print(f"Loading fake quantized model {load} ....")
                 self.model.load_state_dict(ckpt['model_state_dict'], strict=False)

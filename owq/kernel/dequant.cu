@@ -421,7 +421,7 @@ __global__ void MatQuant4DequantKernelFaster(
   }
 }
 
-void matquant3dequant_cuda(
+void MatQuant4DequantKernelFaster(
   torch::Tensor mat,
   torch::Tensor out,
   torch::Tensor scales,
@@ -439,15 +439,15 @@ void matquant3dequant_cuda(
   AT_DISPATCH_FLOATING_TYPES(
     scales.type(), "matquant3dequant_cuda", ([&] {
       MatQuant3DequantKernel<<<blocks, threads>>>(
-        mat.data<int>(), out.data<float>(),
-        scales.data<float>(), zeros.data<uint8_t>(),
+        mat.data_ptr<int>(), out.data_ptr<float>(),
+        scales.data_ptr<float>(), zeros.data_ptr<uint8_t>(),
         height, width
       );
     })
   );
 }
 
-void matquant3dequantoutlier_faster_cuda(
+void matquant3dequantoutlier_cuda(
   torch::Tensor mat,
   torch::Tensor out,
   torch::Tensor scales,
@@ -465,36 +465,20 @@ void matquant3dequantoutlier_faster_cuda(
     (width + BLOCKWIDTH - 1) / BLOCKWIDTH
   );
   dim3 threads(BLOCKWIDTH);
-
-  if (scales.dtype() == torch::kBFloat16){
-    MatQuant3DequantOutlierKernelFaster<nv_bfloat16, nv_bfloat162><<<blocks, threads>>>(
-      mat.data_ptr<int>(),
-      (nv_bfloat16*) out.data_ptr(),
-      (nv_bfloat16*) scales.data_ptr(),
-      zeros.data_ptr<uint8_t>(),
-      (nv_bfloat16*) outlierMat.data_ptr(), 
-      outlieridx.data_ptr<int>(), 
-      outrow.data_ptr<int>(), 
-      cnt.data_ptr<int>(), 
-      height, width
-    );
-  }
-  else {
-    MatQuant3DequantOutlierKernelFaster<half, half2><<<blocks, threads>>>(
-      mat.data_ptr<int>(),
-      (half*) out.data_ptr(),
-      (half*) scales.data_ptr(),
-      zeros.data_ptr<uint8_t>(),
-      (half*) outlierMat.data_ptr(), 
-      outlieridx.data_ptr<int>(), 
-      outrow.data_ptr<int>(), 
-      cnt.data_ptr<int>(), 
-      height, width
-    );
-  }
+  MatQuant3DequantOutlierKernelFaster<half, half2><<<blocks, threads>>>(
+    mat.data_ptr<int>(),
+    (half*) out.data_ptr(),
+    (half*) scales.data_ptr(),
+    zeros.data_ptr<uint8_t>(),
+    (half*) outlierMat.data_ptr(), 
+    outlieridx.data_ptr<int>(), 
+    outrow.data_ptr<int>(), 
+    cnt.data_ptr<int>(), 
+    height, width
+  );
 }
 
-void matquant3dequant_faster_cuda(
+void matquant3dequant_cuda(
   torch::Tensor mat,
   torch::Tensor out,
   torch::Tensor scales,
@@ -508,25 +492,13 @@ void matquant3dequant_faster_cuda(
     (width + BLOCKWIDTH - 1) / BLOCKWIDTH
   );
   dim3 threads(BLOCKWIDTH);
-
-  if (scales.dtype() == torch::kBFloat16){
-    MatQuant3DequantKernelFaster<nv_bfloat16, nv_bfloat162><<<blocks, threads>>>(
-      mat.data_ptr<int>(),
-      (nv_bfloat16*) out.data_ptr(),
-      (nv_bfloat16*) scales.data_ptr(),
-      zeros.data_ptr<uint8_t>(),
-      height, width
-    );
-  }
-  else{
-    MatQuant3DequantKernelFaster<half, half2><<<blocks, threads>>>(
-      mat.data_ptr<int>(),
-      (half*) out.data_ptr(),
-      (half*) scales.data_ptr(),
-      zeros.data_ptr<uint8_t>(),
-      height, width
-    );
-  }
+  MatQuant3DequantKernelFaster<half, half2><<<blocks, threads>>>(
+    mat.data_ptr<int>(),
+    (half*) out.data_ptr(),
+    (half*) scales.data_ptr(),
+    zeros.data_ptr<uint8_t>(),
+    height, width
+  );
 }
 
 void matquant4dequant_cuda(
@@ -547,8 +519,8 @@ void matquant4dequant_cuda(
   AT_DISPATCH_FLOATING_TYPES(
     scales.type(), "matquant4dequant_cuda", ([&] {
       MatQuant4DequantKernel<<<blocks, threads>>>(
-        mat.data<int>(), out.data<float>(),
-        scales.data<float>(), zeros.data<uint8_t>(),
+        mat.data_ptr<int>(), out.data_ptr<float>(),
+        scales.data_ptr<float>(), zeros.data_ptr<uint8_t>(),
         height, width
       );
     })
@@ -569,23 +541,11 @@ void matquant4dequant_faster_cuda(
     (width + BLOCKWIDTH - 1) / BLOCKWIDTH
   );
   dim3 threads(BLOCKWIDTH);
-
-  if (scales.dtype() == torch::kBFloat16){
-    MatQuant4DequantKernelFaster<nv_bfloat16, nv_bfloat162><<<blocks, threads>>>(
-      mat.data_ptr<int>(),
-      (nv_bfloat16*) out.data_ptr(),
-      (nv_bfloat16*) scales.data_ptr(),
-      zeros.data_ptr<uint8_t>(),
-      height, width
-    );
-  }
-  else{
-    MatQuant4DequantKernelFaster<half, half2><<<blocks, threads>>>(
-      mat.data_ptr<int>(),
-      (half*) out.data_ptr(),
-      (half*) scales.data_ptr(),
-      zeros.data_ptr<uint8_t>(),
-      height, width
-    );
-  }
+  MatQuant4DequantKernelFaster<half, half2><<<blocks, threads>>>(
+    mat.data_ptr<int>(),
+    (half*) out.data_ptr(),
+    (half*) scales.data_ptr(),
+    zeros.data_ptr<uint8_t>(),
+    height, width
+  );
 }

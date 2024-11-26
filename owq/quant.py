@@ -2,6 +2,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 from transformers.models.falcon.modeling_falcon import FalconLinear
+import sys
+sys.path.append('/home/dahyunkim/.local/lib/python3.9/site-packages/owq_cuda')
 
 try:
     import owq_cuda
@@ -221,7 +223,7 @@ def lm_pack(model, quantinfos, wbits, linears=[nn.Linear, FalconLinear]):
 class QuantMatMul(torch.autograd.Function):
     @staticmethod
     def forward(ctx, x, oweight, fn_dequant, qweight, scales, zeros, shape, n_out, outids, bias):
-        
+        outids = outids.to(torch.long) # 추가함.
         # 1. Dequantize
         out = torch.empty(shape, dtype=oweight.dtype, device=oweight.device)        
         fn_dequant(qweight, out, scales, zeros)
@@ -283,7 +285,7 @@ class QuantLinear(nn.Module):
             'outlieridx', torch.zeros((outlierfeatures), dtype=torch.int)
         )
         
-        self.faster = True
+        self.faster = False
         self.dtype = dtype
         self.name = name
         

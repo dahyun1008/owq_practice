@@ -497,14 +497,14 @@ if __name__ == '__main__':
             args.dataset, nsamples=1, seed=args.seed, model=args.model, seqlen=args.seqlen, train=True
         )
         gpus = [torch.device('cuda:%d' % i) for i in range(torch.cuda.device_count())]
-        if len(gpus) > 1:
-            model_multigpu(model, gpus, args)
-        else:
-            model = model.to(device)
+        #if len(gpus) > 1:
+            #model_multigpu(model, gpus, args)
+        #else:
+            #model = model.to(device)
+        model = model.to(device)
         
         if isinstance(dataloader,list):
-            input_ids = dataloader[0][0][:,:args.benchmark]
-        else:
+          else:
             input_ids = dataloader.input_ids[:, :args.benchmark]
         benchmark(model, input_ids, args)
         exit()
